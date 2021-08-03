@@ -1,0 +1,11 @@
+{
+  "name": "rubygems-changelog-url",
+  "version": "0.0.1",
+  "description": "Search rubygems ChangeLog URL",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.4.10",
+    "typescript": "^4.3.5"
+  }
+}
