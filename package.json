@@ -2,7 +2,9 @@
   "name": "rubygems-changelog-url",
   "version": "0.0.1",
   "description": "Search rubygems ChangeLog URL",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "kzkn",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.4.10",
