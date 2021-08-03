@@ -8,11 +8,11 @@ export type Gem = {
   changelogUri: string | null
 }
 
-async function isValidUrl(url: string): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
+function isValidUrl(url: string): Promise<string | null> {
+  return new Promise<string | null>((resolve) => {
     const req = https.request(new URL(url), res => {
-      const ok = !!res.statusCode && res.statusCode >= 200 && res.statusCode < 300
-      resolve(ok)
+      const ok = res.statusCode && res.statusCode >= 200 && res.statusCode < 300
+      resolve(ok ? url : null)
     })
 
     req.end()
@@ -42,32 +42,56 @@ function githubTreeUrl(gem: Gem): string | null {
   return findUrlBy(gem, isGithubTreeUrl)
 }
 
+const FILENAMES = {
+  ['CHANGELOG.md']: 0,
+  ['ChangeLog.md']: 0,
+  ['Changelog.md']: 2,
+  ['changelog.md']: 3,
+  ['CHANGELOG.txt']: 2,
+  ['ChangeLog.txt']: 3,
+  ['Changelog.txt']: 3,
+  ['changelog.txt']: 3,
+  ['CHANGELOG']: 2,
+  ['ChangeLog']: 2,
+  ['Changelog']: 3,
+  ['changelog']: 3,
+  ['HISTORY.md']: 1,
+  ['History.md']: 1,
+  ['history.md']: 3,
+  ['HISTORY.txt']: 2,
+  ['History.txt']: 3,
+  ['history.txt']: 3,
+  ['HISTORY']: 3,
+  ['History']: 3,
+  ['history']: 3,
+  ['NEWS.md']: 1,
+  ['News.md']: 2,
+  ['news.md']: 3,
+  ['NEWS.txt']: 3,
+  ['News.txt']: 3,
+  ['news.txt']: 3,
+  ['NEWS']: 2,
+  ['News']: 3,
+  ['news']: 3,
+}
+
+const SORTED_FILENAMES = Array.from(Object.entries(FILENAMES)).sort((a, b) => a[1] - b[1]).map(e => e[0])
+
 async function tryGithubBlobChangeLog(baseUrls: string[]): Promise<string | null> {
-  const filenames = [
-    'CHANGELOG.md', 'ChangeLog.md', 'Changelog.md', 'changelog.md',
-    'CHANGELOG.txt', 'ChangeLog.txt', 'Changelog.txt', 'changelog.txt',
-    'CHANGELOG', 'ChangeLog', 'Changelog', 'changelog',
-    'HISTORY.md', 'History.md', 'History.md', 'history.md',
-    'HISTORY.txt', 'History.txt', 'History.txt', 'history.txt',
-    'HISTORY', 'History', 'History', 'history',
-    'NEWS.md', 'News.md', 'News.md', 'news.md',
-    'NEWS.txt', 'News.txt', 'News.txt', 'news.txt',
-    'NEWS', 'News', 'News', 'news',
-  ]
   const urls = []
   for (const baseUrl of baseUrls) {
-    for (const filename of filenames) {
+    for (const filename of SORTED_FILENAMES) {
       urls.push(`${baseUrl}/${filename}`)
     }
   }
 
-  const results = await Promise.all(urls.map(url => isValidUrl(url)))
-  const idx = results.indexOf(true)
-  if (idx !== -1) {
-    return urls[idx]
-  } else {
-    return null
+  // NOTE: Deliberately looping to reduce the number of useless HTTP requests
+  for await (const result of urls.map(url => isValidUrl(url))) {
+    if (result) {
+      return result
+    }
   }
+  return null
 }
 
 function tryGithubBlobChangeLogFromRepositoryRoot(githubRepositoryUrl: string): Promise<string | null> {
