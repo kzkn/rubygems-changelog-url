@@ -1,6 +1,6 @@
 {
   "name": "rubygems-changelog-url",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Search rubygems ChangeLog URL",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
