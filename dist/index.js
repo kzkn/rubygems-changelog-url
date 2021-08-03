@@ -68,6 +68,9 @@ function tryGithubBlobChangeLog(baseUrls) {
             'HISTORY.md', 'History.md', 'History.md', 'history.md',
             'HISTORY.txt', 'History.txt', 'History.txt', 'history.txt',
             'HISTORY', 'History', 'History', 'history',
+            'NEWS.md', 'News.md', 'News.md', 'news.md',
+            'NEWS.txt', 'News.txt', 'News.txt', 'news.txt',
+            'NEWS', 'News', 'News', 'news',
         ];
         const urls = [];
         for (const baseUrl of baseUrls) {

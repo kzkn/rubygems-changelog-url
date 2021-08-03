@@ -25,9 +25,15 @@ describe('searchChangeLogUrl', () => {
     expect(url).toBe('https://github.com/kzkn/aspnet_password_hasher/blob/main/CHANGELOG.md')
   })
 
-  it('find history.md on github master branch from github repository url', async () => {
+  it('find History.md on github master branch from github repository url', async () => {
     const gem = { name: 'puma', sourceCodeUri: 'https://github.com/puma/puma' }
     const url = await searchChangeLogUrl(gem)
     expect(url).toBe('https://github.com/puma/puma/blob/master/History.md')
+  })
+
+  it('find NEWS.md on github master branch from github repository url', async () => {
+    const gem = { name: 'csv', homepageUri: 'https://github.com/ruby/csv' }
+    const url = await searchChangeLogUrl(gem)
+    expect(url).toBe('https://github.com/ruby/csv/blob/master/NEWS.md')
   })
 })
