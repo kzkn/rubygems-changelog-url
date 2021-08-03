@@ -1,4 +1,4 @@
-import * as http from 'http'
+import * as https from 'https'
 
 export type Gem = {
   name: string
@@ -10,7 +10,7 @@ export type Gem = {
 
 async function isValidUrl(url: string): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
-    const req = http.request(new URL(url), res => {
+    const req = https.request(new URL(url), res => {
       const ok = !!res.statusCode && res.statusCode >= 200 && res.statusCode < 300
       resolve(ok)
     })

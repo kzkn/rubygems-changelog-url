@@ -29,11 +29,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchChangeLogUrl = void 0;
-const http = __importStar(require("http"));
+const https = __importStar(require("https"));
 function isValidUrl(url) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve) => {
-            const req = http.request(new URL(url), res => {
+            const req = https.request(new URL(url), res => {
                 const ok = !!res.statusCode && res.statusCode >= 200 && res.statusCode < 300;
                 resolve(ok);
             });
