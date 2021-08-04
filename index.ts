@@ -117,9 +117,7 @@ function tryGithubBlobChangeLogFromRepositoryTree(githubTreeUrl: string): Promis
 
 export async function searchChangeLogUrl(gem: Gem): Promise<string | null> {
   if (gem.changelogUri) {
-    if (await isValidUrl(gem.changelogUri)) {
-      return gem.changelogUri
-    }
+    return gem.changelogUri
   }
 
   const repositoryUrl = githubRepositoryUrl(gem)

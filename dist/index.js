@@ -147,9 +147,7 @@ function tryGithubBlobChangeLogFromRepositoryTree(githubTreeUrl) {
 function searchChangeLogUrl(gem) {
     return __awaiter(this, void 0, void 0, function* () {
         if (gem.changelogUri) {
-            if (yield isValidUrl(gem.changelogUri)) {
-                return gem.changelogUri;
-            }
+            return gem.changelogUri;
         }
         const repositoryUrl = githubRepositoryUrl(gem);
         if (repositoryUrl) {
