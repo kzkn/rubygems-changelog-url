@@ -1,4 +1,4 @@
-const { searchChangeLogUrl } = require('./dist/index')
+const { searchChangeLogUrl } = require('../dist/index')
 
 const option = { token: process.env.GITHUB_TOKEN }
 

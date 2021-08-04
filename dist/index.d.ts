@@ -1,3 +1,4 @@
+import * as github from './github';
 export declare type Gem = {
     name: string;
     projectUri: string | null;
@@ -5,4 +6,6 @@ export declare type Gem = {
     sourceCodeUri: string | null;
     changelogUri: string | null;
 };
-export declare function searchChangeLogUrl(gem: Gem): Promise<string | null>;
+declare type Option = github.Option;
+export declare function searchChangeLogUrl(gem: Gem, option?: Option): Promise<string | null>;
+export {};
