@@ -1,4 +1,4 @@
-import * as https from 'https'
+import * as github from './github'
 
 export type Gem = {
   name: string
@@ -8,25 +8,15 @@ export type Gem = {
   changelogUri: string | null
 }
 
-function isValidUrl(url: string): Promise<string | null> {
-  return new Promise<string | null>((resolve) => {
-    const req = https.request(new URL(url), res => {
-      const ok = res.statusCode && res.statusCode >= 200 && res.statusCode < 300
-      resolve(ok ? url : null)
-    })
-
-    req.end()
-  })
-}
+const GITHUB_REPOSITORY_URL_REGEXP = new RegExp('^https://github.com/([^/]+)/([^/]+)/?$')
+const GITHUB_TREE_URL_REGEXP = new RegExp('^https://github.com/([^/]+)/([^/]+)/tree/[^/]+/(.+)$')
 
 function isGithubRepositoryUrl(url: string): boolean {
-  const regexp = new RegExp('^https://github.com/[^/]+/[^/]+/?$')
-  return !!url.match(regexp)
+  return !!url.match(GITHUB_REPOSITORY_URL_REGEXP)
 }
 
 function isGithubTreeUrl(url: string): boolean {
-  const regexp = new RegExp('^https://github.com/[^/]+/[^/]+/tree/.+$')
-  return !!url.match(regexp)
+  return !!url.match(GITHUB_TREE_URL_REGEXP)
 }
 
 function findUrlBy(gem: Gem, finder: (url: string) => boolean): string | null {
@@ -66,7 +56,7 @@ const FILENAMES = {
   ['History.txt']: 3,
   ['history.txt']: 3,
   ['HISTORY.rdoc']: 4,
-  ['History.rdoc']: 3,
+  ['History.rdoc']: 2,
   ['history.rdoc']: 4,
   ['HISTORY']: 3,
   ['History']: 3,
@@ -87,42 +77,42 @@ const FILENAMES = {
 
 const SORTED_FILENAMES = Array.from(Object.entries(FILENAMES)).sort((a, b) => a[1] - b[1]).map(e => e[0])
 
-async function tryGithubBlobChangeLog(baseUrls: string[]): Promise<string | null> {
-  const urls = []
-  for (const baseUrl of baseUrls) {
-    for (const filename of SORTED_FILENAMES) {
-      urls.push(`${baseUrl}/${filename}`)
+async function tryGithubBlobChangeLog(repo: github.Repository, pathPrefix: string | null, option?: github.Option): Promise<string | null> {
+  const paths = SORTED_FILENAMES.map(fn => `${pathPrefix ? pathPrefix + '/' : ''}${fn}`)
+
+  // NOTE: Deliberately looping to reduce the number of useless HTTP requests
+  for (const path of paths) {
+    try {
+      return await github.getContentUrl(repo, path, option)
+    } catch (e) {
+      if (!e.statusCode || e.statusCode >= 500) {
+        throw e
+      }
     }
   }
 
-  // NOTE: Deliberately looping to reduce the number of useless HTTP requests
-  for await (const result of urls.map(url => isValidUrl(url))) {
-    if (result) {
-      return result
-    }
-  }
   return null
 }
 
-function tryGithubBlobChangeLogFromRepositoryRoot(githubRepositoryUrl: string): Promise<string | null> {
-  const branches = ['master', 'main']
-  const baseUrls = branches.map(branch => `${githubRepositoryUrl}/blob/${branch}`)
-  return tryGithubBlobChangeLog(baseUrls)
+async function tryGithubBlobChangeLogFromRepositoryRoot(githubRepositoryUrl: string, option?: github.Option): Promise<string | null> {
+  const [, owner, repoName] = githubRepositoryUrl.match(GITHUB_REPOSITORY_URL_REGEXP) as string[]
+  return tryGithubBlobChangeLog({ owner, name: repoName }, null, option)
 }
 
-function tryGithubBlobChangeLogFromRepositoryTree(githubTreeUrl: string): Promise<string | null> {
-  const baseUrl = githubTreeUrl.replace('/tree/', '/blob/')
-  return tryGithubBlobChangeLog([baseUrl])
+function tryGithubBlobChangeLogFromRepositoryTree(githubTreeUrl: string, option?: github.Option): Promise<string | null> {
+  const [, owner, repoName, pathPrefix] = githubTreeUrl.match(GITHUB_TREE_URL_REGEXP) as string[]
+  return tryGithubBlobChangeLog({ owner, name: repoName }, pathPrefix, option)
 }
 
-export async function searchChangeLogUrl(gem: Gem): Promise<string | null> {
+type Option = github.Option
+export async function searchChangeLogUrl(gem: Gem, option?: Option): Promise<string | null> {
   if (gem.changelogUri) {
     return gem.changelogUri
   }
 
   const repositoryUrl = githubRepositoryUrl(gem)
   if (repositoryUrl) {
-    const url = await tryGithubBlobChangeLogFromRepositoryRoot(repositoryUrl)
+    const url = await tryGithubBlobChangeLogFromRepositoryRoot(repositoryUrl, option)
     if (url) {
       return url
     }
@@ -130,7 +120,7 @@ export async function searchChangeLogUrl(gem: Gem): Promise<string | null> {
 
   const treeUrl = githubTreeUrl(gem)
   if (treeUrl) {
-    const url = await tryGithubBlobChangeLogFromRepositoryTree(treeUrl)
+    const url = await tryGithubBlobChangeLogFromRepositoryTree(treeUrl, option)
     if (url) {
       return url
     }
