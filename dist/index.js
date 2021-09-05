@@ -89,6 +89,7 @@ const FILENAMES = {
     ['NEWS']: 2,
     ['News']: 3,
     ['news']: 3,
+    ['Releases']: 2,
 };
 const SORTED_FILENAMES = Array.from(Object.entries(FILENAMES)).sort((a, b) => a[1] - b[1]).map(e => e[0]);
 function tryGithubBlobChangeLog(repo, pathPrefix, option) {

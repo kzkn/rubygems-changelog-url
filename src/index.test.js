@@ -44,4 +44,10 @@ describe('searchChangeLogUrl', () => {
     const url = await searchChangeLogUrl(gem, option)
     expect(url).toBe('https://github.com/ged/ruby-pg/blob/master/History.rdoc')
   })
+
+  it('find Releases on github master branch from github repository url', async () => {
+    const gem = { name: 'daemons', homepageUri: 'https://github.com/thuehlinger/daemons' }
+    const url = await searchChangeLogUrl(gem, option)
+    expect(url).toBe('https://github.com/thuehlinger/daemons/blob/master/Releases')
+  })
 })
