@@ -79,16 +79,16 @@ const FILENAMES = {
 const SORTED_FILENAMES = Array.from(Object.entries(FILENAMES)).sort((a, b) => a[1] - b[1]).map(e => e[0])
 
 async function tryGithubBlobChangeLog(repo: github.Repository, pathPrefix: string | null, option?: github.Option): Promise<string | null> {
-  const paths = SORTED_FILENAMES.map(fn => `${pathPrefix ? pathPrefix + '/' : ''}${fn}`)
+  const defaultBranch = await github.getDefaultBranch(repo, option)
+  const entries = await github.getDirectoryEntries(repo, { branch: defaultBranch, path: pathPrefix }, option)
+  const entryMap = new Map()
+  entries.forEach(entry => entryMap.set(entry.path, entry))
 
-  // NOTE: Deliberately looping to reduce the number of useless HTTP requests
-  for (const path of paths) {
-    try {
-      return await github.getContentUrl(repo, path, option)
-    } catch (e) {
-      if (!e.statusCode || e.statusCode >= 500) {
-        throw e
-      }
+  for (const path of SORTED_FILENAMES) {
+    const entry = entryMap.get(path)
+    if (entry?.type === 'blob') {
+      const fullPath = [pathPrefix, path].filter(Boolean).join('/')
+      return `https://github.com/${repo.owner}/${repo.name}/blob/${defaultBranch}/${fullPath}`
     }
   }
 

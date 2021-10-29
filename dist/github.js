@@ -28,7 +28,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getContentUrl = void 0;
+exports.getDirectoryEntries = exports.getDefaultBranch = exports.getContentUrl = void 0;
 const https = __importStar(require("https"));
 function callApi(path, option) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -73,3 +73,21 @@ function getContentUrl(repo, path, option) {
     });
 }
 exports.getContentUrl = getContentUrl;
+function getDefaultBranch(repo, option) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const data = yield callApi(`/repos/${repo.owner}/${repo.name}`, option);
+        const obj = JSON.parse(data);
+        return obj['default_branch'];
+    });
+}
+exports.getDefaultBranch = getDefaultBranch;
+function getDirectoryEntries(repo, params, option) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const treePath = params.path ? `${params.branch}:${params.path}` : params.branch;
+        const apiPath = `/repos/${repo.owner}/${repo.name}/git/trees/${treePath}`;
+        const data = yield callApi(apiPath, option);
+        const obj = JSON.parse(data);
+        return obj.tree;
+    });
+}
+exports.getDirectoryEntries = getDirectoryEntries;

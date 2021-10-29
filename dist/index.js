@@ -94,16 +94,15 @@ const FILENAMES = {
 const SORTED_FILENAMES = Array.from(Object.entries(FILENAMES)).sort((a, b) => a[1] - b[1]).map(e => e[0]);
 function tryGithubBlobChangeLog(repo, pathPrefix, option) {
     return __awaiter(this, void 0, void 0, function* () {
-        const paths = SORTED_FILENAMES.map(fn => `${pathPrefix ? pathPrefix + '/' : ''}${fn}`);
-        // NOTE: Deliberately looping to reduce the number of useless HTTP requests
-        for (const path of paths) {
-            try {
-                return yield github.getContentUrl(repo, path, option);
-            }
-            catch (e) {
-                if (!e.statusCode || e.statusCode >= 500) {
-                    throw e;
-                }
+        const defaultBranch = yield github.getDefaultBranch(repo, option);
+        const entries = yield github.getDirectoryEntries(repo, { branch: defaultBranch, path: pathPrefix }, option);
+        const entryMap = new Map();
+        entries.forEach(entry => entryMap.set(entry.path, entry));
+        for (const path of SORTED_FILENAMES) {
+            const entry = entryMap.get(path);
+            if ((entry === null || entry === void 0 ? void 0 : entry.type) === 'blob') {
+                const fullPath = [pathPrefix, path].filter(Boolean).join('/');
+                return `https://github.com/${repo.owner}/${repo.name}/blob/${defaultBranch}/${fullPath}`;
             }
         }
         return null;
