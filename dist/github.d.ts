@@ -1,11 +1,11 @@
-export declare type Repository = {
+export type Repository = {
     owner: string;
     name: string;
 };
-export declare type Option = {
+export type Option = {
     token?: string;
 };
-export declare type GithubFileEntry = {
+export type GithubFileEntry = {
     path: string;
     mode: string;
     type: 'blob' | 'tree';
