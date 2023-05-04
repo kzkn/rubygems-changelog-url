@@ -39,10 +39,10 @@ describe('searchChangeLogUrl', () => {
     expect(url).toBe('https://github.com/ruby/csv/blob/master/NEWS.md')
   })
 
-  it('find History.rdoc on github master branch from github repository url', async () => {
-    const gem = { name: 'pg', homepageUri: 'https://github.com/ged/ruby-pg' }
+  it('find History.rdoc on github main branch from github repository url', async () => {
+    const gem = { name: 'dummy-for-test-history-rdoc', homepageUri: 'https://github.com/kzkn/dummy-for-test-history-rdoc' }
     const url = await searchChangeLogUrl(gem, option)
-    expect(url).toBe('https://github.com/ged/ruby-pg/blob/master/History.rdoc')
+    expect(url).toBe('https://github.com/kzkn/dummy-for-test-history-rdoc/blob/main/History.rdoc')
   })
 
   it('find Releases on github master branch from github repository url', async () => {
