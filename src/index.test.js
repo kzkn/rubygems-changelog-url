@@ -3,10 +3,10 @@ const { searchChangeLogUrl } = require('../dist/index')
 const option = { token: process.env.GITHUB_TOKEN }
 
 describe('searchChangeLogUrl', () => {
-  it('find changelog on github master branch from github repository url', async () => {
+  it('find changelog on github main branch from github repository url', async () => {
     const gem = { name: 'gretel', homepageUri: 'https://github.com/kzkn/gretel' }
     const url = await searchChangeLogUrl(gem, option)
-    expect(url).toBe('https://github.com/kzkn/gretel/blob/master/CHANGELOG.md')
+    expect(url).toBe('https://github.com/kzkn/gretel/blob/main/CHANGELOG.md')
   })
 
   it('find changelog from gem description', async () => {
@@ -27,16 +27,16 @@ describe('searchChangeLogUrl', () => {
     expect(url).toBe('https://github.com/kzkn/aspnet_password_hasher/blob/main/CHANGELOG.md')
   })
 
-  it('find History.md on github master branch from github repository url', async () => {
+  it('find History.md on github main branch from github repository url', async () => {
     const gem = { name: 'puma', sourceCodeUri: 'https://github.com/puma/puma' }
     const url = await searchChangeLogUrl(gem, option)
-    expect(url).toBe('https://github.com/puma/puma/blob/master/History.md')
+    expect(url).toBe('https://github.com/puma/puma/blob/main/History.md')
   })
 
-  it('find NEWS.md on github master branch from github repository url', async () => {
+  it('find NEWS.md on github main branch from github repository url', async () => {
     const gem = { name: 'csv', homepageUri: 'https://github.com/ruby/csv' }
     const url = await searchChangeLogUrl(gem, option)
-    expect(url).toBe('https://github.com/ruby/csv/blob/master/NEWS.md')
+    expect(url).toBe('https://github.com/ruby/csv/blob/main/NEWS.md')
   })
 
   it('find History.rdoc on github main branch from github repository url', async () => {
