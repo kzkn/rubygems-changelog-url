@@ -6,6 +6,7 @@ export type Gem = {
   homepageUri: string | null
   sourceCodeUri: string | null
   changelogUri: string | null
+  licenses: string[] | null
 }
 
 const GITHUB_REPOSITORY_URL_REGEXP = new RegExp('^https://github.com/([^/]+)/([^/]+)/?$')
